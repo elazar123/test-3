@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>קורס עריכת וידאו AI PRO - אלעזר ריגר</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700&display=swap');
+        
+        :root {
+            --primary-color: #6200ea;
+            --secondary-color: #f4f7f9;
+            --text-color: #2a2a2a;
+            --sidebar-width: 280px;
+            --card-bg: #ffffff;
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --gradient-primary: linear-gradient(135deg, #6200ea 0%, #b388ff 100%);
+            --gradient-header: linear-gradient(to right, #4a148c, #7c43bd);
+            --link-color: #651fff;
+            --button-hover: #4527a0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Rubik', sans-serif;
+            color: var(--text-color);
+            background-color: var(--secondary-color);
+            line-height: 1.6;
+            direction: rtl;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Video Background */
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background-color: #4a148c; /* צבע רקע כגיבוי */
+        }
+
+        .video-background::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.5); /* שקיפות */
+        }
+
+        .video-background video {
+            position: absolute;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+            opacity: 1;
+            z-index: 0;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: var(--gradient-header);
+            color: white;
+            border-radius: 0 0 15px 15px;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            margin-right: var(--sidebar-width);
+        }
+        
+        .welcome-section {
+            margin-bottom: 3rem;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(230, 230, 250, 0.5);
+        }
+        
+        .syllabus-toggle {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(98, 0, 234, 0.2);
+        }
+
+        .syllabus-toggle:hover {
+            background-color: var(--button-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(98, 0, 234, 0.25);
+        }
+        
+        .syllabus {
+            display: none;
+            background-color: var(--secondary-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .syllabus.active {
+            display: block;
+        }
+        
+        .syllabus-list {
+            list-style-position: inside;
+        }
+        
+        .syllabus-list li {
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .lesson-container {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(230, 230, 250, 0.5);
+        }
+        
+        .lesson-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        .lesson-title {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .lesson-description {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            color: #555;
+        }
+        
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 1px solid rgba(230, 230, 250, 0.5);
+        }
+        
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+        }
+        
+        .resources {
+            background-color: var(--secondary-color);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .resources h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .resources ul {
+            list-style-type: none;
+        }
+        
+        .resources li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .resources a {
+            color: var(--link-color);
+            text-decoration: none;
+            display: inline-block;
+            padding: 0.5rem 0;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .resources a:hover {
+            transform: translateX(-5px);
+            color: var(--button-hover);
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            position: fixed;
+            right: 0;
+            top: 0;
+            height: 100%;
+            background-color: white;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.05);
+            border-left: 1px solid rgba(230, 230, 250, 0.7);
+        }
+        
+        .sidebar-header {
+            background: var(--gradient-header);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .nav-list {
+            list-style-type: none;
+            padding: 1rem;
+        }
+        
+        .nav-item {
+            margin-bottom: 0.8rem;
+        }
+        
+        .nav-link {
+            display: block;
+            padding: 0.8rem 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--secondary-color);
+            transform: translateX(-5px);
+        }
+        
+        .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 6px rgba(98, 0, 234, 0.2);
+        }
+        
+        /* Mobile menu toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1001;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 0.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        /* FAQ Section */
+        .faq-container {
+            margin-top: 3rem;
+        }
+        
+        .faq-item {
+            margin-bottom: 1.5rem;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+            transition: all 0.3s;
+            border: 1px solid rgba(230, 230, 250, 0.5);
+        }
+        
+        .faq-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .faq-question {
+            padding: 1.2rem;
+            background: var(--gradient-primary);
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .faq-answer {
+            padding: 1.2rem;
+            display: none;
+            background-color: white;
+            color: #555;
+        }
+        
+        .faq-answer.active {
+            display: block;
+        }
+
+        /* Call to action button */
+        .cta-button {
+            display: inline-block;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            margin: 2rem 0;
+            box-shadow: 0 5px 15px rgba(93, 63, 211, 0.3);
+            transition: all 0.3s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(93, 63, 211, 0.4);
+        }
+        
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .main-content {
+                margin-right: 0;
+                padding: 1rem;
+            }
+            
+            .sidebar {
+                transform: translateX(100%);
+                width: 75%;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Video Background -->
+    <div class="video-background">
+        <video id="bgVideo" autoplay muted loop playsinline>
+            <source src="video/back.mp4" type="video/mp4">
+            <!-- אם הוידאו לא נטען, טקסט זה יוצג -->
+            הדפדפן שלך לא תומך בנגינת וידאו.
+        </video>
+    </div>
+
+    <div class="container">
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="header">
+                <h1>ברוך הבא לקורס עריכת וידאו AI PRO עם אלעזר ריגר</h1>
+                <p>בקורס זה תלמד כיצד לערוך סרטונים מקצועיים בקלות, גם אם אין לך ניסיון קודם</p>
+            </header>
+            
+            <div class="welcome-section">
+                <button class="syllabus-toggle" id="syllabusToggle">הצג סילבוס מלא</button>
+                
+                <div class="syllabus" id="syllabus">
+                    <h2>סילבוס הקורס</h2>
+                    <ol class="syllabus-list">
+                        <li><strong>שיעור 1:</strong> היכרות עם התוכנה Kapwing - בחירת הגרסה המתאימה והתחלת עבודה</li>
+                        <li><strong>שיעור 2:</strong> יסודות העריכה - חיתוך והדבקת קטעי וידאו</li>
+                        <li><strong>שיעור 3:</strong> הוספת טקסט וכתוביות לסרטונים</li>
+                        <li><strong>שיעור 4:</strong> עבודה עם אפקטים והמעברים</li>
+                        <li><strong>שיעור 5:</strong> שילוב מוזיקה וסאונד בסרטונים</li>
+                        <li><strong>שיעור 6:</strong> הוספת לוגו ומיתוג אישי</li>
+                        <li><strong>שיעור 7:</strong> שיפור איכות הוידאו והסאונד</li>
+                        <li><strong>שיעור 8:</strong> עריכת סרטוני הדרכה ומדריכים</li>
+                        <li><strong>שיעור 9:</strong> טכניקות לעריכת סרטוני תוכן לרשתות חברתיות</li>
+                        <li><strong>שיעור 10:</strong> ייצוא וידאו בפורמטים שונים</li>
+                        <li><strong>שיעור 11:</strong> טיפים מתקדמים לעריכה מקצועית</li>
+                        <li><strong>שיעור 12:</strong> העלאה ואופטימיזציה ליוטיוב</li>
+                        <li><strong>שיעור 13:</strong> עריכת ריילים ופוסטים לרשתות חברתיות</li>
+                        <li><strong>שיעור 14:</strong> כלים לאוטומציה בעריכת וידאו</li>
+                        <li><strong>שיעור 15:</strong> יצירת אנימציות פשוטות</li>
+                        <li><strong>שיעור 16:</strong> עבודה עם תבניות מוכנות</li>
+                        <li><strong>שיעור 17:</strong> פרויקט מסכם - עריכת סרטון שלם מ-A עד Z</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="lesson-container" id="currentLesson">
+                <!-- Lesson content will be loaded here via JavaScript -->
+                <h2 class="lesson-title">ללמוד לערוך סרטונים בלי להסתבך עם תוכנות מסובכות</h2>
+                <p class="lesson-description">
+                    כלי פשוט, אונליין, בעברית – בלי הורדות ובלי כאב ראש. בחר שיעור מהתפריט בצד ימין כדי להתחיל ללמוד. הקורס בנוי באופן מדורג כך שתוכל להתקדם בקצב שלך.
+                </p>
+                
+                <div class="faq-container">
+                    <h2>שאלות ותשובות נפוצות</h2>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">האם צריך ניסיון קודם בעריכת וידאו?</div>
+                        <div class="faq-answer">
+                            ממש לא. הקורס מתאים גם למי שלא פתח תוכנת עריכה בחיים. ההסברים פשוטים, ברורים, בעברית, והכל מלווה בשלבים ברורים שתוכל ליישם מיד.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">באיזו תוכנה עובדים?</div>
+                        <div class="faq-answer">
+                            אנחנו עובדים עם Kapwing – תוכנה אונליין בעברית, שלא דורשת התקנה.
+                            יש לה גרסה חינמית מוגבלת וגרסה בתשלום. הקורס כולו בנוי כך שתוכל לעבוד גם בגרסה החינמית, ולהוציא ממנה את המקסימום.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">הקורס מוקלט או בלייב?</div>
+                        <div class="faq-answer">
+                            הקורס כולל 17 שיעורים מוקלטים וקצרים, שאתה יכול לראות מתי שנוח לך.
+                            בנוסף – יש קבוצת וואטסאפ פעילה להתייעצות, שאלות ומענה אישי ממני לאורך כל הדרך.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">כמה זמן אורך הקורס?</div>
+                        <div class="faq-answer">
+                            אתה בוחר את הקצב – אפשר לסיים הכל ביום אחד, ואפשר לפזר לפי הזמן שלך.
+                            השיעורים קצרים, מעשיים ובלי חפירות – ישר לעבודה.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">האם יש תמיכה אם אני נתקע?</div>
+                        <div class="faq-answer">
+                            כן. אתה לא לבד – יש קבוצת וואטסאפ סגורה, בה תוכל לשאול כל שאלה ולקבל תשובה ממני או מהקהילה.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">האם חייבים לשלם על גרסת התוכנה?</div>
+                        <div class="faq-answer">
+                            ממש לא. אתה יכול להשתמש בגרסה החינמית של Kapwing לכל אורך הקורס.
+                            שים לב: היא מגבילה חלק מהאפשרויות – אבל עדיין מספיקה לכל מה שנלמד בקורס.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">האם הקורס מתאים גם למי שלא מצלם בעצמו?</div>
+                        <div class="faq-answer">
+                            בהחלט. גם אם אתה רק מקבל סרטונים מאחרים – תוכל לערוך, להוסיף כתוביות, מוזיקה, לוגו ועוד – ולהוציא תוכן שנראה מעולה.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>תוכן הקורס</h2>
+            </div>
+            
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="#lesson1" class="nav-link" data-lesson="1">1. היכרות עם התוכנה</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#lesson2" class="nav-link" data-lesson="2">2. יסודות העריכה</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#lesson3" class="nav-link" data-lesson="3">3. הוספת טקסט וכתוביות</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#lesson4" class="nav-link" data-lesson="4">4. אפקטים ומעברים</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#lesson5" class="nav-link" data-lesson="5">5. מוזיקה וסאונד</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#lesson6" class="nav-link" data-lesson="6">6. לוגו ומיתוג אישי</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#lesson7" class="nav-link" data-lesson="7">7. שיפור איכות</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#lesson8" class="nav-link" data-lesson="8">8. סרטוני הדרכה</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#lesson9" class="nav-link" data-lesson="9">9. עריכה לרשתות חברתיות</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#lesson10" class="nav-link" data-lesson="10">10. ייצוא וידאו</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#lesson11" class="nav-link" data-lesson="11">11. טיפים מתקדמים</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#lesson12" class="nav-link" data-lesson="12">12. אופטימיזציה ליוטיוב</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#lesson13" class="nav-link" data-lesson="13">13. ריילים ופוסטים</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#lesson14" class="nav-link" data-lesson="14">14. אוטומציה בעריכה</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#lesson15" class="nav-link" data-lesson="15">15. יצירת אנימציות</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#lesson16" class="nav-link" data-lesson="16">16. תבניות מוכנות</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#lesson17" class="nav-link" data-lesson="17">17. פרויקט מסכם</a>
+                </li>
+            </ul>
+        </aside>
+        
+        <!-- Mobile Menu Toggle -->
+        <button class="menu-toggle" id="menuToggle">תפריט</button>
+    </div>
+
+    <script>
+        // Lesson data (simulate data that would normally come from a database or API)
+        const lessons = [
+            {
+                id: 1,
+                title: "היכרות עם התוכנה Kapwing",
+                description: "בשיעור זה נכיר את תוכנת Kapwing, ממשק המשתמש שלה, ואיך להתחיל לעבוד איתה. נלמד על ההבדלים בין הגרסה החינמית לגרסה בתשלום ואיך להפיק את המירב מהגרסה החינמית.",
+                videoUrl: "https://www.youtube.com/embed/PLACEHOLDER1",
+                resources: [
+                    { name: "מדריך התקנה", url: "#" },
+                    { name: "השוואת גרסאות", url: "#" }
+                ]
+            },
+            {
+                id: 2,
+                title: "יסודות העריכה - חיתוך והדבקת קטעי וידאו",
+                description: "נלמד את הבסיס של עריכת וידאו - חיתוך קטעים, שינוי סדר, והדבקה. נכיר את ציר הזמן ואיך לעבוד איתו ביעילות.",
+                videoUrl: "https://www.youtube.com/embed/PLACEHOLDER2",
+                resources: [
+                    { name: "קובץ תרגול", url: "#" }
+                ]
+            },
+            {
+                id: 3,
+                title: "הוספת טקסט וכתוביות לסרטונים",
+                description: "נלמד כיצד להוסיף טקסט וכתוביות מושכות עין, עיצוב טקסט, והוספת כתוביות אוטומטיות בעברית.",
+                videoUrl: "https://www.youtube.com/embed/PLACEHOLDER3",
+                resources: [
+                    { name: "ערכת פונטים מומלצת", url: "#" }
+                ]
+            },
+            {
+                id: 4,
+                title: "עבודה עם אפקטים והמעברים",
+                description: "נלמד להוסיף אפקטים ויזואליים ומעברים בין סצנות שונות כדי להפוך את הסרטון למקצועי יותר.",
+                videoUrl: "https://www.youtube.com/embed/PLACEHOLDER4",
+                resources: []
+            },
+            {
+                id: 5,
+                title: "שילוב מוזיקה וסאונד בסרטונים",
+                description: "נלמד כיצד להוסיף מוזיקת רקע, אפקטים קוליים, ולאזן בין הקול המקורי לבין המוזיקה.",
+                videoUrl: "https://www.youtube.com/embed/PLACEHOLDER5",
+                resources: [
+                    { name: "מאגר מוזיקה חינמית", url: "#" }
+                ]
+            },
+            {
+                id: 6,
+                title: "הוספת לוגו ומיתוג אישי",
+                description: "נלמד כיצד להוסיף לוגו, חתימה אישית ואלמנטים עיצוביים שיהפכו את הסרטונים שלך למזוהים עם המותג שלך.",
+                videoUrl: "https://www.youtube.com/embed/PLACEHOLDER6",
+                resources: [
+                    { name: "תבנית לוגו", url: "#" }
+                ]
+            },
+            {
+                id: 7,
+                title: "שיפור איכות הוידאו והסאונד",
+                description: "נלמד טכניקות פשוטות לשיפור איכות הוידאו והסאונד - כיוון בהירות וניגודיות, הפחתת רעשים ועוד.",
+                videoUrl: "https://www.youtube.com/embed/PLACEHOLDER7",
+                resources: []
+            },
+            {
+                id: 8,
+                title: "עריכת סרטוני הדרכה ומדריכים",
+                description: "נלמד טכניקות ספציפיות לעריכת סרטוני הדרכה - הדגשות, זום, ועריכה שמדגישה את התוכן החשוב.",
+                videoUrl: "https://www.youtube.com/embed/PLACEHOLDER8",
+                resources: [
+                    { name: "תבנית להדרכה", url: "#" }
+                ]
+            },
+            {
+                id: 9,
+                title: "טכניקות לעריכת סרטוני תוכן לרשתות חברתיות",
+                description: "נלמד כיצד להתאים את הסרטונים לפלטפורמות השונות - אינסטגרם, פייסבוק, טיקטוק ויוטיוב.",
+                videoUrl: "https://www.youtube.com/embed/PLACEHOLDER9",
+                resources: [
+                    { name: "מידות לכל פלטפורמה", url: "#" }
+                ]
+            },
+            {
+                id: 10,
+                title: "ייצוא וידאו בפורמטים שונים",
+                description: "נלמד על הפורמטים השונים לייצוא, איכויות, ואיך לבחור את הפורמט הנכון לכל מטרה.",
+                videoUrl: "https://www.youtube.com/embed/PLACEHOLDER10",
+                resources: []
+            },
+            {
+                id: 11,
+                title: "טיפים מתקדמים לעריכה מקצועית",
+                description: "נלמד טיפים וטריקים מתקדמים שיעזרו לך לערוך מהר יותר ובאיכות גבוהה יותר.",
+                videoUrl: "https://www.youtube.com/embed/PLACEHOLDER11",
+                resources: [
+                    { name: "רשימת קיצורי מקלדת", url: "#" }
+                ]
+            },
+            {
+                id: 12,
+                title: "העלאה ואופטימיזציה ליוטיוב",
+                description: "נלמד כיצד להעלות את הסרטונים ליוטיוב בצורה אופטימלית - כותרות, תיאורים, תגיות וטאמבנייל.",
+                videoUrl: "https://www.youtube.com/embed/PLACEHOLDER12",
+                resources: [
+                    { name: "תבנית לתיאור וידאו", url: "#" }
+                ]
+            },
+            {
+                id: 13,
+                title: "עריכת ריילים ופוסטים לרשתות חברתיות",
+                description: "נלמד טכניקות ספציפיות לעריכת ריילים, סטוריז ופוסטים עבור אינסטגרם וטיקטוק.",
+                videoUrl: "https://www.youtube.com/embed/PLACEHOLDER13",
+                resources: []
+            },
+            {
+                id: 14,
+                title: "כלים לאוטומציה בעריכת וידאו",
+                description: "נכיר כלים שיעזרו לך לייעל את תהליך העריכה - תבניות, מאקרוס ותהליכי עבודה חכמים.",
+                videoUrl: "https://www.youtube.com/embed/PLACEHOLDER14",
+                resources: [
+                    { name: "כלי אוטומציה מומלצים", url: "#" }
+                ]
+            },
+            {
+                id: 15,
+                title: "יצירת אנימציות פשוטות",
+                description: "נלמד איך ליצור אנימציות פשוטות בתוך Kapwing - טקסט מונפש, כניסות ויציאות, ועוד.",
+                videoUrl: "https://www.youtube.com/embed/PLACEHOLDER15",
+                resources: []
+            },
+            {
+                id: 16,
+                title: "עבודה עם תבניות מוכנות",
+                description: "נלמד איך להשתמש בתבניות מוכנות ולהתאים אותן לצרכים שלך לחסכון בזמן.",
+                videoUrl: "https://www.youtube.com/embed/PLACEHOLDER16",
+                resources: [
+                    { name: "חבילת תבניות", url: "#" }
+                ]
+            },
+            {
+                id: 17,
+                title: "פרויקט מסכם - עריכת סרטון שלם מ-A עד Z",
+                description: "נסכם את כל מה שלמדנו בפרויקט מעשי שבו נערוך סרטון שלם מהתחלה ועד הסוף.",
+                videoUrl: "https://www.youtube.com/embed/PLACEHOLDER17",
+                resources: [
+                    { name: "חומרי גלם לפרויקט", url: "#" },
+                    { name: "מדריך צעד אחר צעד", url: "#" }
+                ]
+            }
+        ];
+
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const menuToggle = document.getElementById('menuToggle');
+        const syllabusToggle = document.getElementById('syllabusToggle');
+        const syllabus = document.getElementById('syllabus');
+        const currentLesson = document.getElementById('currentLesson');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const faqQuestions = document.querySelectorAll('.faq-question');
+
+        // Toggle sidebar on mobile
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+        // Toggle syllabus
+        syllabusToggle.addEventListener('click', () => {
+            syllabus.classList.toggle('active');
+            syllabusToggle.textContent = syllabus.classList.contains('active') ? 'הסתר סילבוס' : 'הצג סילבוס מלא';
+        });
+
+        // Load lesson content
+        function loadLesson(lessonId) {
+            const lesson = lessons.find(l => l.id === parseInt(lessonId));
+            
+            if (!lesson) return;
+            
+            // Update active nav link
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-lesson') == lessonId) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Scroll to top of page
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Update lesson content
+            let content = `
+                <h2 class="lesson-title">${lesson.title}</h2>
+                <p class="lesson-description">${lesson.description}</p>
+                <div class="video-container">
+                    <iframe src="${lesson.videoUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            `;
+            
+            // Add resources if available
+            if (lesson.resources && lesson.resources.length > 0) {
+                content += `
+                    <div class="resources">
+                        <h3>חומרים נלווים</h3>
+                        <ul>
+                `;
+                
+                lesson.resources.forEach(resource => {
+                    content += `<li><a href="${resource.url}" target="_blank">${resource.name}</a></li>`;
+                });
+                
+                content += `
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            currentLesson.innerHTML = content;
+            
+            // Close sidebar on mobile after selection
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('active');
+            }
+            
+            // Update URL
+            window.location.hash = `lesson${lessonId}`;
+        }
+
+        // Handle navigation clicks
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const lessonId = link.getAttribute('data-lesson');
+                loadLesson(lessonId);
+            });
+        });
+
+        // Toggle FAQ answers
+        faqQuestions.forEach(question => {
+            question.addEventListener('click', () => {
+                const answer = question.nextElementSibling;
+                answer.classList.toggle('active');
+            });
+        });
+
+        // Check URL hash on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash;
+            if (hash && hash.includes('lesson')) {
+                const lessonId = hash.replace('#lesson', '');
+                loadLesson(lessonId);
+            } else {
+                // אם אין שיעור ספציפי בכתובת, טען את השיעור הראשון אוטומטית
+                loadLesson(1);
+            }
+            
+            // Open FAQ answers initially
+            document.querySelector('.faq-answer').classList.add('active');
+            
+            // Check if video can play
+            const video = document.querySelector('#bgVideo');
+            video.addEventListener('error', function(e) {
+                // If video can't load, replace with fallback color
+                console.error('שגיאה בטעינת הוידאו:', e);
+                document.querySelector('.video-background').style.backgroundColor = '#9C27B0';
+            });
+            
+            // הפעל את הוידאו באופן מפורש
+            video.play().catch(function(error) {
+                console.error('לא ניתן להפעיל את הוידאו אוטומטית:', error);
+                // נסה להפעיל שוב
+                document.body.addEventListener('click', function() {
+                    video.play();
+                }, { once: true });
+            });
+            
+            // בדוק אם הוידאו נטען
+            video.addEventListener('loadeddata', function() {
+                console.log('הוידאו נטען בהצלחה!');
+            });
+        });
+    </script>
+    
+    <footer style="text-align: center; padding: 2rem; background-color: var(--secondary-color); margin-top: 3rem;">
+        <p>© 2025 כל הזכויות שמורות | קורס עריכת וידאו AI PRO - אלעזר ריגר</p>
+    </footer>
+</body>
+</html> 
